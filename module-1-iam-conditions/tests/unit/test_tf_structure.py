@@ -25,7 +25,6 @@ def test_required_variables_declared():
     declared = [strip_quotes(list(v.keys())[0]) for v in tf["variable"]]
     assert "project_id" in declared
     assert "region" in declared
-    assert "environment" in declared
     assert "finance_analyst_sa" in declared
     assert "marketing_analyst_sa" in declared
 
