@@ -65,8 +65,7 @@ jobs:
               run: pip install python-hcl2 pytest
 
             - name: Run Unit Tests
-              working-directory: ${{ env.WORKING_DIR }}
-              run: pytest ../../tests/unit/ -v
+              run: pytest module-1-iam-conditions/tests/unit/ -v
 
             - name: Terraform Plan
               working-directory: ${{ env.WORKING_DIR }}
