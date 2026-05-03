@@ -1,6 +1,5 @@
 project_id  = "project-15293a08-1ca4-40fa-8eb"
 region      = "asia-south1"
-environment = "dev"
 
 # Service Accounts
 finance_analyst_sa  = "finance-analyst-sa@project-15293a08-1ca4-40fa-8eb.iam.gserviceaccount.com"

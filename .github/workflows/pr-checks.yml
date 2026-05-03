@@ -1,0 +1,92 @@
+name: terraform-pr-checks
+
+on:
+    pull_request:
+        branches: 
+            - main
+        paths: 
+            - 'module-1-iam-conditions/terraform/**'
+
+env:
+    TF_VERSION: '1.5.0'
+    WORKING_DIR: 'module-1-iam-conditions/terraform'
+
+jobs:
+    terraform-pr-checks:
+        name: terraform-pr-checks
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: read
+            id-token: write
+            pull-requests: write
+
+        steps:
+            - name: Checkout code
+              uses: action/checkout@v4
+
+            - name: Authenticate to GCP
+              uses: google-github-actions/auth@v2
+              with:
+                workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+                service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+              with:
+                terraform_version: ${{ env.TF_VERSION }}
+
+            - name: Terraform Format Check
+              working-directory: ${{ env.WORKING_DIR }}
+              run: terraform fmt --check
+              
+            - name: Terraform Init
+              working-directory: ${{ env.WORKING_DIR }}
+              run: terraform init
+
+            - name: Terraform Validate
+              working-directory: ${{ env.WORKING_DIR }}
+              run: terraform validate
+
+            - name: Install tflint
+              run: |
+                curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+            - name: Run tflint
+              working-directory: ${{ env.WORKING_DIR }}
+              run: tflint --init && tflint
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.11'
+
+            - name: Install Python dependencies
+              run: pip install python-hcl2 pytest
+
+            - name: Run Unit Tests
+              working-directory: ${{ env.WORKING_DIR }}
+              run: pytest ../../tests/unit/ -v
+
+            - name: Terraform Plan
+              working-directory: ${{ env.WORKING_DIR }}
+              run: |
+                terraform plan \
+                    -var-file="environments/dev.tfvars" \
+                    -no-color \
+                    -out=tfplan
+
+            - name: Comment plan on PR
+              uses: actions/github-script@v7
+              with:
+                script: |
+                    const { execSync } = require('child_process');
+                    const plan = execSync('terraform show -no-color tfplan', {
+                    cwd: '${{ env.WORKING_DIR }}'
+                    }).toString();
+                    github.rest.issues.createComment({
+                    issue_number: context.issue.number,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: '## Terraform Plan\n```\n' + plan + '\n```'
+    
