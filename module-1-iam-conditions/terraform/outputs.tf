@@ -8,14 +8,14 @@ output "marketing_analyst_dataset_access" {
   value       = google_bigquery_dataset_iam_member.marketing_analyst_access.etag
 }
 
-output "finance-analyst-job-user" {
+output "finance_analyst_job_user" {
   description = "IAM binding etag for finance analyst job user at project level"
-  value       = google_project_iam_member.finance-analyst-job-user.etag
+  value       = google_project_iam_member.finance_analyst_job_user.etag
 }
 
-output "marketing-analyst-job-user" {
+output "marketing_analyst_job_user" {
   description = "IAM binding etag for marketing analyst job user at project level"
-  value       = google_project_iam_member.marketing-analyst-job-user.etag
+  value       = google_project_iam_member.marketing_analyst_job_user.etag
 }
 
 output "project_id" {

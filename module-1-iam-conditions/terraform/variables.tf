@@ -9,14 +9,6 @@ variable "region" {
   default     = "asia-south1"
 }
 
-variable "environment" {
-  type        = string
-  description = "Deployment environment (dev or prod)"
-  validation {
-    condition     = contains(["dev", "prod"], var.environment)
-    error_message = "Environment must be dev or prod."
-  }
-}
 
 variable "finance_analyst_sa" {
   type        = string
